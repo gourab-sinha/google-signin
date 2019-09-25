@@ -1,0 +1,46 @@
+<!--Google Sign-->
+  <input class="googlebutton" type="button" style="display:inline-block" id="signinButton"></button>
+  <div id="result"></div>
+  <!-- GOOGLE PLUS SIGN IN BUTTON-->
+  <div id="signinButton">
+    <span class="g-signin"
+      data-scope="openid email"
+      data-clientid="Your Client ID"
+      data-redirecturi="postmessage"
+      data-accesstype="offline"
+      data-cookiepolicy="single_host_origin"
+      data-callback="signInCallback"
+      data-approvalprompt="force">
+    </span>
+  </div>
+  <script>
+    $('#signinButton').click(function() {
+      function signInCallback(authResult){
+        if (authResult['code']){
+          $('#signinButton,#fbbutton,#loginheading').attr('style', 'display: none');
+          $.ajax({
+            type: 'POST',
+            url: '/gconnect?state={{STATE}}',
+            headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+            },
+            contentType: 'application/octet-stream; charset=utf-8',
+            success:function(result){
+              $('#result').html('<h3 style="color:white;">Login Successful!</h3></br>'+ result + '</br><h3 style="color:white;">Redirecting...</h3>')
+                 setTimeout(function() {
+                  window.location.href = "/YOUR_REDIRECT_SITE/";
+                 }, 4000);
+              },
+            processData:false,
+            data:authResult['code']
+          });
+        }
+        else{
+        // handle error
+        console.log('There was an error: ' + authResult['error']);
+        $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+      }
+    }
+    auth2.grantOfflineAccess().then(signInCallback);
+  });
+</script>
